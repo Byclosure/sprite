@@ -19,9 +19,6 @@ module Sprite
       end
       expand_image_paths
 
-      # initialize datestamp
-      @datestamp_query = "?#{Time.now.to_i}" if @config["add_datestamps"]
-
       # initialize sprite files
       @sprite_files = {}
     end
@@ -97,8 +94,13 @@ module Sprite
         dest_image = combiner.composite_images(dest_image, source_image, x, y)
       end
 
-      ImageWriter.new(config).write(dest_image, name, image_config.format, image_config.quality, image_config.background_color)
-
+      image_writer = ImageWriter.new(config)
+      image_writer.write(dest_image, name, image_config.format, image_config.quality, image_config.background_color)
+      
+      if @config["add_datestamps"]
+        datestamp = File.mtime(image_writer.image_output_path(name, image_config.format)).to_i
+        @datestamp_query = "?#{datestamp}"
+      end
       @sprite_files["#{name}.#{image_config.format}#{@datestamp_query}"] = results
     end
 
