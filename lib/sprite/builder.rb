@@ -30,9 +30,6 @@ module Sprite
       @images = images || []
       set_image_defaults
       expand_image_paths
-
-      # initialize datestamp
-      @datestamp_query = "?#{Time.now.to_i}" if @config["add_datestamps"]
       
       # initialize sprite files
       @sprite_files = {}
@@ -89,7 +86,10 @@ module Sprite
       
       # write sprite image file to disk
       dest_image.write(path)
-      @sprite_files["#{name}.#{format}#{@datestamp_query}"] = results
+      
+      datestamp_query = "?#{File.mtime(path).to_i}" if @config["add_datestamps"]
+      
+      @sprite_files["#{name}.#{format}#{datestamp_query}"] = results
     end
     
     def write_styles
